@@ -51,7 +51,7 @@ public class InitData {
 
     public static void insertData() throws IOException {
         Transaction transaction = new Transaction();
-        //创建writes
+        //创建
         for (int i = 0; i < accounts.length; ++i) {
             String account = accounts[i];
             Long data = datas[i];
