@@ -25,16 +25,16 @@ public class Test {
 
     static void addData() throws IOException {
         Connection connection = ConnectionFactory.createConnection(Conf.HBASE_CONFIG);
-//        HBaseAdmin admin = (HBaseAdmin) connection.getAdmin();
-//        HTableDescriptor htd = new HTableDescriptor("test");
-//        HColumnDescriptor hcd = new HColumnDescriptor("data");
-//        htd.addFamily(hcd);
-//        admin.createTable(htd);
-//        byte[] tablename = htd.getName();
-//        HTableDescriptor[] tables = admin.listTables();
-//        if (tables.length != 1 && new String(tablename, "utf8").equals("test")) {
-//            throw new IOException("Failed create of table");
-//        }
+        HBaseAdmin admin = (HBaseAdmin) connection.getAdmin();
+        HTableDescriptor htd = new HTableDescriptor("test");
+        HColumnDescriptor hcd = new HColumnDescriptor("data");
+        htd.addFamily(hcd);
+        admin.createTable(htd);
+        byte[] tablename = htd.getName();
+        HTableDescriptor[] tables = admin.listTables();
+        if (tables.length != 1 && new String(tablename, "utf8").equals("test")) {
+            throw new IOException("Failed create of table");
+        }
         HTable table = (HTable) connection.getTable(TableName.valueOf(Bytes.toBytes("test")));
         byte[] row1 = Bytes.toBytes("row1");
         Put p1 = new Put(row1);
@@ -54,7 +54,7 @@ public class Test {
         } finally {
             resultScanner.close();
         }
-//        admin.disableTable(tablename);
-//        admin.deleteTable(tablename);
+        admin.disableTable(tablename);
+        admin.deleteTable(tablename);
     }
 }

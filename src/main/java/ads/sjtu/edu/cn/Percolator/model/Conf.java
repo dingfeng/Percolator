@@ -18,7 +18,7 @@ public class Conf {
     static {
         HBASE_CONFIG = HBaseConfiguration.create();
         HBASE_CONFIG.set("hbase.zookeeper.quorum", ZOOKEEPER_ADDR);
-        HBASE_CONFIG.set("hbase.rootdir", "hdfs://master:9000/hbase");
+//        HBASE_CONFIG.set("hbase.rootdir", "hdfs://master:9000/hbase");
         HBASE_CONFIG.set("hbase.zookeeper.property.clientPort", String.valueOf(CLIENTPORT));
 
     }
