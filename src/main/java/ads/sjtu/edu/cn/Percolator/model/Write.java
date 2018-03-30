@@ -14,5 +14,5 @@ import lombok.Data;
 public class Write {
     private String row;
     private String col;
-    private String value;
+    private Long value;
 }

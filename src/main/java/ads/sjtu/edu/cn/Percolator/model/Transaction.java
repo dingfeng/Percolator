@@ -24,13 +24,12 @@ public class Transaction {
     public final static String LOCK_COl = "lock";
     public final static String WRITE_COL = "write";
     public final static String DATA_COL = "data";
-    private SupportServiceClient supportServiceClient = SupportServiceClient.getInstance();
+    //    private SupportServiceClient supportServiceClient = SupportServiceClient.getInstance();
     private Connection connection;
     private long startTimestamp;
-    private long commitTimestamp;
     private List<Write> writes = new ArrayList<>();
 
-    public Transaction(String table) throws IOException {
+    public Transaction() throws IOException {
         this.connection = ConnectionFactory.createConnection(Conf.HBASE_CONFIG);
         this.startTimestamp = getOneTimestamp();
     }
@@ -112,7 +111,7 @@ public class Transaction {
         RowTransaction rowTransaction = new RowTransaction(TABLE_NAME, primary.getRow());
         rowTransaction.startRowTransaction();
         HTable table = (HTable) this.connection.getTable(TableName.valueOf(TABLE_NAME));
-        if (!table.exists(new Get(Bytes.toBytes(primary.getRow())).addColumn(Bytes.toBytes(primary.getCol()), Bytes.toBytes(LOCK_COl)).setTimeRange(startTimestamp, startTimestamp)))
+        if (!table.exists(new Get(Bytes.toBytes(primary.getRow())).addColumn(Bytes.toBytes(primary.getCol()), Bytes.toBytes(LOCK_COl)).setTimeRange(startTimestamp, startTimestamp + 1)))
             return false;
         table.put(new Put(Bytes.toBytes(primary.getRow())).addColumn(Bytes.toBytes(primary.getCol()), Bytes.toBytes(WRITE_COL), commitTimestamp, Bytes.toBytes(startTimestamp)));
         table.delete(new Delete(Bytes.toBytes(primary.getRow())).addColumn(Bytes.toBytes(primary.getCol()), Bytes.toBytes(LOCK_COl)));
@@ -121,8 +120,8 @@ public class Transaction {
         //update other rows
         for (int i = 1; i < writes.size(); ++i) {
             Write write = writes.get(i);
-            table.put(new Put(Bytes.toBytes(TABLE_NAME)).addColumn(Bytes.toBytes(write.getCol()), Bytes.toBytes(WRITE_COL), commitTimestamp, Bytes.toBytes(startTimestamp)));
-            table.delete(new Delete(Bytes.toBytes(TABLE_NAME)).addColumn(Bytes.toBytes(write.getCol()), Bytes.toBytes(LOCK_COl)));
+            table.put(new Put(Bytes.toBytes(write.getRow())).addColumn(Bytes.toBytes(write.getCol()), Bytes.toBytes(WRITE_COL), commitTimestamp, Bytes.toBytes(startTimestamp)));
+            table.delete(new Delete(Bytes.toBytes(write.getRow())).addColumn(Bytes.toBytes(write.getCol()), Bytes.toBytes(LOCK_COl)));
         }
         return true;
     }

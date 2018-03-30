@@ -15,6 +15,7 @@ import java.io.IOException;
  * @see Test
  */
 public class Test {
+
     public static void main(String[] args) {
         try {
             addData();
@@ -54,7 +55,7 @@ public class Test {
         } finally {
             resultScanner.close();
         }
-        admin.disableTable(tablename);
-        admin.deleteTable(tablename);
+//        admin.disableTable(tablename);
+//        admin.deleteTable(tablename);
     }
 }

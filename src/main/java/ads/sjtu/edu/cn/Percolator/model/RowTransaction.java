@@ -16,7 +16,7 @@ public class RowTransaction {
     private String lockKey;
 
     public RowTransaction(String table, String key) {
-        this.lockKey = new StringBuilder().append(table).append("/").append(key).toString();
+        this.lockKey = new StringBuilder().append("/").append(table).append("/").append(key).toString();
     }
 
     public boolean startRowTransaction() {

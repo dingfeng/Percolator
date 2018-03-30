@@ -31,7 +31,7 @@ public class SupportServiceClient implements SupportServer {
 
     private SupportServer getSupportServer() {
         try {
-            String rmiRrl = "rmi://" + Conf.MASTER_IP + "/" + Conf.SUPPORT_SERVER_NAME;
+            String rmiRrl = "rmi://" + Conf.MASTER_IP + ":20000/" + Conf.SUPPORT_SERVER_NAME;
             logger.info("connect support server url={}", rmiRrl);
             SupportServer supportServer = (SupportServer) Naming.lookup(rmiRrl);
             return supportServer;
