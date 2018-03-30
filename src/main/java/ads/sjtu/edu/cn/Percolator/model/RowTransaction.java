@@ -21,12 +21,15 @@ public class RowTransaction {
 
     public boolean startRowTransaction() {
         logger.info("start row transaction for lockKey={}", lockKey);
-        return DistributeLockUtils.lock(lockKey);
+        boolean result = DistributeLockUtils.lock(lockKey);
+        logger.info("get lock for {}",lockKey);
+        return result;
     }
-
+//0x1626823e9230022
     public boolean commit() {
         logger.info("commit row transaction for lockKey={}", lockKey);
-        return DistributeLockUtils.unlock(lockKey);
+        boolean result = DistributeLockUtils.unlock(lockKey);
+        return result;
     }
 
 
