@@ -9,6 +9,6 @@ import lombok.Data;
  */
 @Data
 public class Record {
-    private String upCount = "";
-    private String downCount = "";
+    private String upCount = "0";
+    private String downCount = "0";
 }

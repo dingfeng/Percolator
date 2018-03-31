@@ -6,13 +6,18 @@ import ads.sjtu.edu.cn.Percolator.entity.AccountLine;
 import ads.sjtu.edu.cn.Percolator.entity.Record;
 import ads.sjtu.edu.cn.Percolator.entity.RowAccountVersionData;
 import ads.sjtu.edu.cn.Percolator.param.TransferAccountItemParam;
+import ads.sjtu.edu.cn.Percolator.service.AccountService;
+import ads.sjtu.edu.cn.Percolator.service.RecordService;
+import com.google.common.base.Throwables;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -24,45 +29,60 @@ import java.util.List;
 @RequestMapping("/transfer")
 public class TransferControllerImpl implements TransferController {
     static org.slf4j.Logger logger = LoggerFactory.getLogger(TransferControllerImpl.class);
+    @Autowired
+    AccountService accountService;
+    @Autowired
+    RecordService recordService;
 
     @RequestMapping("/transferAccount")
     @ResponseBody
     public String transferAccount(@RequestParam String account, @RequestParam List<TransferAccountItemParam> transferAccountItemParamList) {
-
-        return "success";
+        String result = "failure";
+        try {
+            boolean transferResult = accountService.transferAccount(account, transferAccountItemParamList);
+            if (transferResult) {
+                result = "success";
+            }
+        } catch (Exception e) {
+            logger.error(Throwables.getStackTraceAsString(e));
+        }
+        return result;
     }
 
     @RequestMapping("/allAccountData")
     @ResponseBody
     public List<AccountData> allAccountData() {
-        List<AccountData> accountDataList = new ArrayList<>();
-        AccountData accountData = new AccountData();
-        accountData.setAccount("chenbo");
-        accountData.setAmount(1l);
-        accountDataList.add(accountData);
-        return accountDataList;
+        List<AccountData> resultList = Collections.emptyList();
+        try {
+            resultList = accountService.allAccountData();
+        } catch (Exception e) {
+            logger.error(Throwables.getStackTraceAsString(e));
+        }
+        return resultList;
     }
 
     @RequestMapping("/allDBDataWithVersions")
     @ResponseBody
     public List<RowAccountVersionData> allDBDataWithVersions() {
-        List<RowAccountVersionData> rowAccountVersionDataList = new ArrayList<>();
-        RowAccountVersionData rowAccountVersionData = new RowAccountVersionData();
-        rowAccountVersionData.setAccount("chebo");
-        List<AccountLine> accountDataList = new ArrayList<>();
-        AccountLine accountLine = new AccountLine();
-        accountLine.setData("1");
-        accountDataList.add(accountLine);
-        rowAccountVersionData.setVersionData(accountDataList);
-        rowAccountVersionDataList.add(rowAccountVersionData);
-        return rowAccountVersionDataList;
+        List<RowAccountVersionData> resultList = Collections.emptyList();
+        try {
+            resultList = accountService.allDBDataWithVersions();
+        } catch (Exception e) {
+            logger.error(Throwables.getStackTraceAsString(e));
+        }
+        return resultList;
     }
 
     @RequestMapping("/recordData")
     @ResponseBody
-    public Record recordData()
-    {
-        return  new Record();
+    public Record recordData() {
+        Record record = new Record();
+        try {
+            record = recordService.recordData();
+        } catch (Exception e) {
+            logger.error(Throwables.getStackTraceAsString(e));
+        }
+        return record;
     }
 
 }
