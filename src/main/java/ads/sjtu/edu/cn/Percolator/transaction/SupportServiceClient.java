@@ -57,11 +57,15 @@ public class SupportServiceClient implements SupportServer {
 
     @Override
     public void keepAlive(long id) throws RemoteException {
-
+        SupportServer supportServer = getSupportServer();
+        if (supportServer != null) {
+            supportServer.keepAlive(id);
+        }
     }
 
     @Override
     public boolean isAlive(long id) throws RemoteException {
-        return false;
+        SupportServer supportServer = getSupportServer();
+        return supportServer.isAlive(id);
     }
 }
