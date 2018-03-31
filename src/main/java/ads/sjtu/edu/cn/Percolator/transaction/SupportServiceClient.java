@@ -56,12 +56,12 @@ public class SupportServiceClient implements SupportServer {
     }
 
     @Override
-    public void keepAlive(int id) throws RemoteException {
+    public void keepAlive(long id) throws RemoteException {
 
     }
 
     @Override
-    public boolean isAlive(int id) throws RemoteException {
+    public boolean isAlive(long id) throws RemoteException {
         return false;
     }
 }

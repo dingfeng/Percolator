@@ -1,4 +1,4 @@
-package ads.sjtu.edu.cn.Percolator.componentImp;
+package ads.sjtu.edu.cn.Percolator.componentImpl;
 
 
 import ads.sjtu.edu.cn.Percolator.component.ThreadPool;

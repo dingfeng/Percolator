@@ -1,6 +1,6 @@
 package ads.sjtu.edu.cn.Percolator;
 
-import ads.sjtu.edu.cn.Percolator.timerImpl.WorkImpl;
+import ads.sjtu.edu.cn.Percolator.timerImpl.WorkerImpl;
 import ads.sjtu.edu.cn.Percolator.transaction.Transaction;
 import ads.sjtu.edu.cn.Percolator.transaction.Write;
 import com.google.common.base.Throwables;
@@ -165,9 +165,9 @@ public class InitData {
             Write write = new Write(account, "record", -1l);
             transaction.addWrite(write);
         }
-        Write upWrite = new Write(WorkImpl.UP_COUNT_KEY, "record", 0l);
+        Write upWrite = new Write(WorkerImpl.UP_COUNT_KEY, "record", 0l);
         transaction.addWrite(upWrite);
-        Write downWrite = new Write(WorkImpl.DOWN_COUNT_KEY, "record", 0l);
+        Write downWrite = new Write(WorkerImpl.DOWN_COUNT_KEY, "record", 0l);
         transaction.addWrite(downWrite);
         transaction.commit();
         System.out.println("succeed to init  record data");

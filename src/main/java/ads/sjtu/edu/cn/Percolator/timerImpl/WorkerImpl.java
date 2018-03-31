@@ -25,11 +25,11 @@ import java.util.Random;
 /**
  * @author 丁峰
  * @date 2018/3/31 13:27
- * @see WorkImpl
+ * @see WorkerImpl
  */
 @Component
-public class WorkImpl implements Worker {
-    static Logger logger = LoggerFactory.getLogger(WorkImpl.class);
+public class WorkerImpl implements Worker {
+    static Logger logger = LoggerFactory.getLogger(WorkerImpl.class);
     private static final int WORK_SIZE = 1000;
     private static final float RANDOM_FILTER_CHANCE = 1.0f / WORK_SIZE;
     private static final int RANDOM_PAGE_SIZE = 100;
