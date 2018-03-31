@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +40,9 @@ public class WorkImpl implements Worker {
     @Autowired
     private ThreadPool threadPool;
 
-    @Scheduled(cron = "* * * * * *")
+
+    //    @Scheduled(cron = "* * * * * *")
+    @PostConstruct
     public void scanNotificationColumn() {
         logger.info("timer task scanNotificationColumn has been started");
         try {
@@ -63,7 +66,9 @@ public class WorkImpl implements Worker {
             FilterList filterList = new FilterList(filters);
             Scan scan = new Scan();
             scan.setFilter(filterList);
-            scan.setStartRow(startRow);
+            if (startRow != null) {
+                scan.setStartRow(startRow);
+            }
             try (Connection connection = ConnectionFactory.createConnection(Conf.HBASE_CONFIG)) {
                 HTable table = (HTable) connection.getTable(TableName.valueOf(Conf.ACCOUNT_TABLE));
                 ResultScanner resultScanner = table.getScanner(scan);

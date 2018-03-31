@@ -20,6 +20,7 @@ public class Conf {
     public static int CLIENTPORT = 2181;
 
     static {
+        System.setProperty("hadoop.home.dir", "N:\\hadoop_home");
         HBASE_CONFIG = HBaseConfiguration.create();
         HBASE_CONFIG.set("hbase.zookeeper.quorum", ZOOKEEPER_ADDR);
 //        HBASE_CONFIG.set("hbase.rootdir", "hdfs://master:9000/hbase");

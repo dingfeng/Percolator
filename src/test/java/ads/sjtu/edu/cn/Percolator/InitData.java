@@ -1,4 +1,4 @@
-package ads.sjtu.edu.cn.Percolator.init;
+package ads.sjtu.edu.cn.Percolator;
 
 import ads.sjtu.edu.cn.Percolator.timerImpl.WorkImpl;
 import ads.sjtu.edu.cn.Percolator.transaction.Conf;

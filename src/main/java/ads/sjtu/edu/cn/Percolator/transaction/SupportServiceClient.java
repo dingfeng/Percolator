@@ -1,9 +1,9 @@
 package ads.sjtu.edu.cn.Percolator.transaction;
 
-import service.SupportServer;
 import com.google.common.base.Throwables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import suportservice.service.SupportServer;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
