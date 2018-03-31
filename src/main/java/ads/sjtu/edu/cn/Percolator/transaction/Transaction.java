@@ -18,17 +18,23 @@ import java.util.List;
  */
 public class Transaction {
     static Logger logger = LoggerFactory.getLogger(Transaction.class);
-    public final static String TABLE_NAME = "account_table";
     public final static String LOCK_COl = "lock";
     public final static String WRITE_COL = "write";
     public final static String DATA_COL = "data";
+    public final static String ACCOUNT_FAMILY = "account";
     public final static String NOTIFICATION_FAMILY = "notification";
-    public final static String NOTIFICATION_FAMILY_FLAG="flag";
+    public final static String NOTIFICATION_FAMILY_FLAG = "flag";
     private long startTimestamp;
     private List<Write> writes = new ArrayList<>();
+    private String tableName;
+
+    public Transaction(String tableName) throws IOException {
+        this.startTimestamp = getOneTimestamp();
+        this.tableName = tableName;
+    }
 
     public Transaction() throws IOException {
-        this.startTimestamp = getOneTimestamp();
+        this(Conf.ACCOUNT_TABLE);
     }
 
 
@@ -50,7 +56,7 @@ public class Transaction {
         String primaryRow = primaryStrArray[0];
         String primaryFamily = primaryStrArray[1];
         long primaryCommitTimestamp = -1;
-        RowTransaction rowTransaction = new RowTransaction(TABLE_NAME, primaryRow);
+        RowTransaction rowTransaction = new RowTransaction(this.tableName, primaryRow);
         logger.info("begin transaction primary row = {}", primaryRow);
         rowTransaction.startRowTransaction();
         //primary行是否存在锁
@@ -87,7 +93,7 @@ public class Transaction {
 
     public Long get(String row, String col) throws IOException {
         try (Connection connection = ConnectionFactory.createConnection(Conf.HBASE_CONFIG);) {
-            HTable table = (HTable) connection.getTable(TableName.valueOf(TABLE_NAME));
+            HTable table = (HTable) connection.getTable(TableName.valueOf(this.tableName));
             byte[] rowBytes = Bytes.toBytes(row);
             byte[] familyBytes = Bytes.toBytes(col);
             while (true) {
@@ -119,9 +125,9 @@ public class Transaction {
 
         String row = w.getRow();
         String col = w.getCol();
-        RowTransaction rowTransaction = new RowTransaction(TABLE_NAME, row);
+        RowTransaction rowTransaction = new RowTransaction(this.tableName, row);
         rowTransaction.startRowTransaction();
-        HTable table = (HTable) connection.getTable(TableName.valueOf(TABLE_NAME));
+        HTable table = (HTable) connection.getTable(TableName.valueOf(this.tableName));
         boolean writeExist = table.exists(new Get(Bytes.toBytes(row)).addColumn(Bytes.toBytes(col), Bytes.toBytes(WRITE_COL)).setTimeRange(startTimestamp, Long.MAX_VALUE));
         if (writeExist) {
             return false;
@@ -152,9 +158,9 @@ public class Transaction {
             }
             long commitTimestamp = getOneTimestamp();
             logger.info("primary start row transaction");
-            RowTransaction rowTransaction = new RowTransaction(TABLE_NAME, primary.getRow());
+            RowTransaction rowTransaction = new RowTransaction(this.tableName, primary.getRow());
             rowTransaction.startRowTransaction();
-            HTable table = (HTable) connection.getTable(TableName.valueOf(TABLE_NAME));
+            HTable table = (HTable) connection.getTable(TableName.valueOf(this.tableName));
             if (!table.exists(new Get(Bytes.toBytes(primary.getRow())).addColumn(Bytes.toBytes(primary.getCol()), Bytes.toBytes(LOCK_COl)).setTimeStamp(startTimestamp)))
                 return false;
             RowMutations mutations = new RowMutations(Bytes.toBytes(primary.getRow()));
