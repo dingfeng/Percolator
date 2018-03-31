@@ -33,8 +33,8 @@ public class WorkImpl implements Worker {
     private static final int WORK_SIZE = 1000;
     private static final float RANDOM_FILTER_CHANCE = 1.0f / WORK_SIZE;
     private static final int RANDOM_PAGE_SIZE = 100;
-    private static final String UP_COUNT_KEY = "up_count_key";
-    private static final String DOWN_COUNT_KEY = "down_count_key";
+    public static final String UP_COUNT_KEY = "up_count_key";
+    public static final String DOWN_COUNT_KEY = "down_count_key";
     private static final String RECORD_TABLE_FAMILY = "record";
     @Autowired
     private ThreadPool threadPool;
@@ -95,12 +95,12 @@ public class WorkImpl implements Worker {
             Long recordValue = recordTransaction.get(Bytes.toString(row), RECORD_TABLE_FAMILY);
             Long upCount = recordTransaction.get(UP_COUNT_KEY, RECORD_TABLE_FAMILY);
             Long downCount = recordTransaction.get(DOWN_COUNT_KEY, RECORD_TABLE_FAMILY);
-            if (recordValue == null) {
+            if (recordValue == -1) {
                 Write flagWrite = new Write(Bytes.toString(row), RECORD_TABLE_FAMILY, 1l);
                 recordTransaction.addWrite(flagWrite);
                 Write countWrite = new Write(UP_COUNT_KEY, RECORD_TABLE_FAMILY, upCount + 1);
                 recordTransaction.addWrite(countWrite);
-            } else if (currentValue >= Conf.RECORD_THRESHOLD && recordValue <= 0l) {
+            } else if (currentValue >= Conf.RECORD_THRESHOLD && recordValue == 0l) {
                 Write flagWrite = new Write(Bytes.toString(row), RECORD_TABLE_FAMILY, 1l);
                 recordTransaction.addWrite(flagWrite);
                 Write upCountWrite = new Write(UP_COUNT_KEY, RECORD_TABLE_FAMILY, upCount + 1);
@@ -108,7 +108,7 @@ public class WorkImpl implements Worker {
                 //down -1
                 Write downCountWrite = new Write(DOWN_COUNT_KEY, RECORD_TABLE_FAMILY, downCount - 1);
                 recordTransaction.addWrite(downCountWrite);
-            } else if (currentValue < Conf.RECORD_THRESHOLD && recordValue > 0l) {
+            } else if (currentValue < Conf.RECORD_THRESHOLD && recordValue == 1l) {
                 Write flagWrite = new Write(Bytes.toString(row), RECORD_TABLE_FAMILY, 0l);
                 recordTransaction.addWrite(flagWrite);
                 Write upCountWrite = new Write(UP_COUNT_KEY, RECORD_TABLE_FAMILY, upCount - 1);

@@ -1,5 +1,6 @@
 package ads.sjtu.edu.cn.Percolator.init;
 
+import ads.sjtu.edu.cn.Percolator.timerImpl.WorkImpl;
 import ads.sjtu.edu.cn.Percolator.transaction.Conf;
 import ads.sjtu.edu.cn.Percolator.transaction.Transaction;
 import ads.sjtu.edu.cn.Percolator.transaction.Write;
@@ -60,6 +61,29 @@ public class InitData {
     }
 
 
+    public static void addRecordData() throws IOException {
+        Transaction transaction = new Transaction(Conf.RECORD_TABLE);
+        String col = "record";
+        Long[] updatedDatas = new Long[accounts.length];
+        for (int i = 0; i < accounts.length; ++i) {
+            String accountKey = accounts[i];
+            Long accoutData = transaction.get(accountKey, col);
+            accoutData = accoutData == null ? -1 : accoutData;
+            accoutData += 1;
+            updatedDatas[i] = accoutData;
+        }
+
+        logger.info("updateDatas = {}", Arrays.toString(updatedDatas));
+        //更新账户
+        for (int i = 0; i < accounts.length; ++i) {
+            String accountKey = accounts[i];
+            Long updatedData = updatedDatas[i];
+            Write write = new Write(accountKey, col, updatedData);
+            transaction.addWrite(write);
+        }
+        transaction.commit();
+    }
+
     public static void addAccountData() throws IOException {
         Transaction transaction = new Transaction();
         String col = "account";
@@ -85,6 +109,7 @@ public class InitData {
     public static void initData() throws IOException {
         createTable();
         insertData();
+        insertRecordData();
     }
 
     private static void createTable() throws IOException {
@@ -96,7 +121,7 @@ public class InitData {
         }
         if (admin.tableExists("record_table")) {
             admin.disableTable(Bytes.toBytes("record_table"));
-            admin.disableTable(Bytes.toBytes("record_table"));
+            admin.deleteTable(Bytes.toBytes("record_table"));
         }
         HTableDescriptor accountHtd = new HTableDescriptor("account_table");
         HColumnDescriptor accountHcd = new HColumnDescriptor("account");
@@ -106,7 +131,9 @@ public class InitData {
         admin.createTable(accountHtd);
         HTableDescriptor rankHtd = new HTableDescriptor("record_table");
         HColumnDescriptor rankHcd = new HColumnDescriptor("record");
+        HColumnDescriptor rankNotification = new HColumnDescriptor("notification");
         rankHtd.addFamily(rankHcd);
+        rankHtd.addFamily(rankNotification);
         admin.createTable(rankHtd);
         HTableDescriptor[] tables = admin.listTables();
         StringBuilder sb = new StringBuilder();
@@ -128,7 +155,23 @@ public class InitData {
             transaction.addWrite(write);
         }
         transaction.commit();
-        System.out.println("succeed to init data");
+        System.out.println("succeed to init account data");
+    }
+
+    private static void insertRecordData() throws IOException {
+        Transaction transaction = new Transaction(Conf.RECORD_TABLE);
+        //创建
+        for (int i = 0; i < accounts.length; ++i) {
+            String account = accounts[i];
+            Write write = new Write(account, "record", -1l);
+            transaction.addWrite(write);
+        }
+        Write upWrite = new Write(WorkImpl.UP_COUNT_KEY, "record", 0l);
+        transaction.addWrite(upWrite);
+        Write downWrite = new Write(WorkImpl.DOWN_COUNT_KEY, "record", 0l);
+        transaction.addWrite(downWrite);
+        transaction.commit();
+        System.out.println("succeed to init  record data");
     }
 
 
