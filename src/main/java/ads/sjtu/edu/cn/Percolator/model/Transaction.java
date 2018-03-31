@@ -22,7 +22,7 @@ public class Transaction {
     public final static String LOCK_COl = "lock";
     public final static String WRITE_COL = "write";
     public final static String DATA_COL = "data";
-    //    private SupportServiceClient supportServiceClient = SupportServiceClient.getInstance();
+    public final static String NOTIFICATION = "notification";
     private Connection connection;
     private long startTimestamp;
     private List<Write> writes = new ArrayList<>();
@@ -76,8 +76,10 @@ public class Transaction {
             RowMutations rowMutations = new RowMutations(Bytes.toBytes(row));
             Delete lockDelete = new Delete(Bytes.toBytes(row)).addColumn(Bytes.toBytes(family), Bytes.toBytes(LOCK_COl)).setTimestamp(rowResultTimestamp);
             Put writePut = new Put(Bytes.toBytes(row)).addColumn(Bytes.toBytes(family), Bytes.toBytes(WRITE_COL), primaryCommitTimestamp, Bytes.toBytes(rowResultTimestamp));
+            Put notificationPut = new Put(Bytes.toBytes(row)).addColumn(Bytes.toBytes(family), Bytes.toBytes(NOTIFICATION), primaryCommitTimestamp, new byte[]{1});
             rowMutations.add(lockDelete);
             rowMutations.add(writePut);
+            rowMutations.add(notificationPut);
             table.mutateRow(rowMutations);
             logger.info("succeed to roll forward row = {}", row);
         }
@@ -152,6 +154,8 @@ public class Transaction {
         RowMutations mutations = new RowMutations(Bytes.toBytes(primary.getRow()));
         mutations.add(new Put(Bytes.toBytes(primary.getRow())).addColumn(Bytes.toBytes(primary.getCol()), Bytes.toBytes(WRITE_COL), commitTimestamp, Bytes.toBytes(startTimestamp)));
         mutations.add(new Delete(Bytes.toBytes(primary.getRow())).addColumn(Bytes.toBytes(primary.getCol()), Bytes.toBytes(LOCK_COl)));
+        mutations.add(new Put(Bytes.toBytes(primary.getRow())).addColumn(Bytes.toBytes(primary.getCol()), Bytes.toBytes(NOTIFICATION), commitTimestamp, new byte[]{1}));
+
         table.mutateRow(mutations);
         if (!rowTransaction.commit()) return false;
         logger.info("primary succeeds to commit row transaction");
@@ -161,6 +165,7 @@ public class Transaction {
             RowMutations rowMutations = new RowMutations(Bytes.toBytes(write.getRow()));
             rowMutations.add(new Put(Bytes.toBytes(write.getRow())).addColumn(Bytes.toBytes(write.getCol()), Bytes.toBytes(WRITE_COL), commitTimestamp, Bytes.toBytes(startTimestamp)));
             rowMutations.add(new Delete(Bytes.toBytes(write.getRow())).addColumn(Bytes.toBytes(write.getCol()), Bytes.toBytes(LOCK_COl)));
+            rowMutations.add(new Put(Bytes.toBytes(write.getRow())).addColumn(Bytes.toBytes(write.getCol()), Bytes.toBytes(NOTIFICATION), commitTimestamp, new byte[]{1}));
             table.mutateRow(rowMutations);
         }
         logger.info("transaction commited");

@@ -1,4 +1,4 @@
-package service;
+package ads.sjtu.edu.cn.Percolator.service;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

@@ -1,10 +1,9 @@
-package init;
+package ads.sjtu.edu.cn.Percolator.init;
 
 import ads.sjtu.edu.cn.Percolator.model.Conf;
 import ads.sjtu.edu.cn.Percolator.model.Transaction;
 import ads.sjtu.edu.cn.Percolator.model.Write;
 import com.google.common.base.Throwables;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
@@ -30,8 +29,9 @@ public class InitData {
 
     public static void main(String[] args) throws IOException {
 //        addAccountData();
-        new DataAddTask("task1").start();
+//        new DataAddTask("task1").start();
 //        new DataAddTask("task2").start();
+        initData();
     }
 
     @Data
@@ -94,11 +94,20 @@ public class InitData {
             admin.disableTable(Bytes.toBytes("account_table"));
             admin.deleteTable(Bytes.toBytes("account_table"));
         }
-
-        HTableDescriptor htd = new HTableDescriptor("account_table");
-        HColumnDescriptor hcd = new HColumnDescriptor("account");
-        htd.addFamily(hcd);
-        admin.createTable(htd);
+        if (admin.tableExists("record_table")) {
+            admin.disableTable(Bytes.toBytes("record_table"));
+            admin.disableTable(Bytes.toBytes("record_table"));
+        }
+        HTableDescriptor accountHtd = new HTableDescriptor("account_table");
+        HColumnDescriptor accountHcd = new HColumnDescriptor("account");
+        HColumnDescriptor accountNotification = new HColumnDescriptor("notification");
+        accountHtd.addFamily(accountHcd);
+        accountHtd.addFamily(accountNotification);
+        admin.createTable(accountHtd);
+        HTableDescriptor rankHtd = new HTableDescriptor("record_table");
+        HColumnDescriptor rankHcd = new HColumnDescriptor("record");
+        rankHtd.addFamily(rankHcd);
+        admin.createTable(rankHtd);
         HTableDescriptor[] tables = admin.listTables();
         StringBuilder sb = new StringBuilder();
         for (HTableDescriptor hTableDescriptor : tables) {
