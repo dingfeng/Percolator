@@ -1,7 +1,6 @@
 package ads.sjtu.edu.cn.Percolator;
 
 import ads.sjtu.edu.cn.Percolator.timerImpl.WorkImpl;
-import ads.sjtu.edu.cn.Percolator.transaction.Conf;
 import ads.sjtu.edu.cn.Percolator.transaction.Transaction;
 import ads.sjtu.edu.cn.Percolator.transaction.Write;
 import com.google.common.base.Throwables;

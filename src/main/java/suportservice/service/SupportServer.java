@@ -10,7 +10,7 @@ import java.util.List;
 public interface SupportServer  extends Remote{
     List<Long> getTimestamps(int num) throws RemoteException;
 
-    void keepAlive(int id) throws RemoteException;
+    void keepAlive(long id) throws RemoteException;
 
-    boolean isAlive(int id) throws RemoteException;
+    boolean isAlive(long id) throws RemoteException;
 }

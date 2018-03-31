@@ -1,6 +1,5 @@
 package ads.sjtu.edu.cn.Percolator;
 
-import ads.sjtu.edu.cn.Percolator.transaction.Conf;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;

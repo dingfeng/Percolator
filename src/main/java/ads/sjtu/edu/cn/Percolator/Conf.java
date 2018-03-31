@@ -1,4 +1,4 @@
-package ads.sjtu.edu.cn.Percolator.transaction;
+package ads.sjtu.edu.cn.Percolator;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;

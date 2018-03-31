@@ -1,5 +1,6 @@
 package ads.sjtu.edu.cn.Percolator.transaction;
 
+import ads.sjtu.edu.cn.Percolator.Conf;
 import com.google.common.base.Throwables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

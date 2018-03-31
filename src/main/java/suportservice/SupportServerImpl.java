@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SupportServerImpl extends UnicastRemoteObject implements SupportServer {
     private long timestamp = 0;
-    private Map<Integer, Long> aliveMap = new ConcurrentHashMap<>();
+    private Map<Long, Long> aliveMap = new ConcurrentHashMap<>();
     private final static long maxNoAliveDuration = 60 * 1000;
 
     public SupportServerImpl() throws RemoteException {
@@ -41,13 +41,13 @@ public class SupportServerImpl extends UnicastRemoteObject implements SupportSer
     }
 
     @Override
-    public void keepAlive(int id) {
+    public void keepAlive(long id) {
         long current = getDateTimestamp();
         aliveMap.put(id, current);
     }
 
     @Override
-    public boolean isAlive(int id) {
+    public boolean isAlive(long id) {
         Long lastAliveTime = aliveMap.get(id);
         //id not exist or time margin is larger than maxNoAliveDuration
         if (lastAliveTime == null || (getDateTimestamp() - lastAliveTime) > maxNoAliveDuration) {
