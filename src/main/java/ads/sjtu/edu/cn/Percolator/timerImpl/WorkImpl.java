@@ -120,7 +120,6 @@ public class WorkImpl implements Worker {
                 logger.info("no operation for record table");
             }
 
-
             return recordTransaction.commit();
         }
 
