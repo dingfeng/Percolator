@@ -1,7 +1,6 @@
-package ads.sjtu.edu.cn.Percolator.model;
+package ads.sjtu.edu.cn.Percolator.transaction;
 
 
-import org.apache.hadoop.hbase.client.HTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

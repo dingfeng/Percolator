@@ -1,4 +1,4 @@
-package ads.sjtu.edu.cn.Percolator.model;
+package ads.sjtu.edu.cn.Percolator.transaction;
 
 import ads.sjtu.edu.cn.Percolator.service.SupportServer;
 import com.google.common.base.Throwables;
@@ -9,7 +9,6 @@ import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 

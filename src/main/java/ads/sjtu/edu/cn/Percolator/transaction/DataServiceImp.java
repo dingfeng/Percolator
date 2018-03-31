@@ -1,4 +1,4 @@
-package ads.sjtu.edu.cn.Percolator.model;
+package ads.sjtu.edu.cn.Percolator.transaction;
 
 /**
  * @author 丁峰

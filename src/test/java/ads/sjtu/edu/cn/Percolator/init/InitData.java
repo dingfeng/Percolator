@@ -1,8 +1,8 @@
 package ads.sjtu.edu.cn.Percolator.init;
 
-import ads.sjtu.edu.cn.Percolator.model.Conf;
-import ads.sjtu.edu.cn.Percolator.model.Transaction;
-import ads.sjtu.edu.cn.Percolator.model.Write;
+import ads.sjtu.edu.cn.Percolator.transaction.Conf;
+import ads.sjtu.edu.cn.Percolator.transaction.Transaction;
+import ads.sjtu.edu.cn.Percolator.transaction.Write;
 import com.google.common.base.Throwables;
 import lombok.Data;
 import org.apache.hadoop.hbase.HColumnDescriptor;

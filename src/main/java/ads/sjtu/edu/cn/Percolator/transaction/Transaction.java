@@ -1,4 +1,4 @@
-package ads.sjtu.edu.cn.Percolator.model;
+package ads.sjtu.edu.cn.Percolator.transaction;
 
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
