@@ -41,7 +41,7 @@ public class WorkerImpl implements Worker {
     private ThreadPool threadPool;
 
 
-    @Scheduled(cron = "* * * * * *")
+    @Scheduled(cron = "*/5 * * * * *")
     public void scanNotificationColumn() {
         logger.info("timer task scanNotificationColumn has been started");
         try {
