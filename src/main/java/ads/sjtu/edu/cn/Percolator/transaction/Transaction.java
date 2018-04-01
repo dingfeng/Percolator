@@ -215,8 +215,8 @@ public class Transaction {
                 rowMutations.add(new Delete(Bytes.toBytes(write.getRow())).addColumn(Bytes.toBytes(write.getCol()), Bytes.toBytes(LOCK_COL)));
                 rowMutations.add(new Put(Bytes.toBytes(write.getRow())).addColumn(Bytes.toBytes(NOTIFICATION_FAMILY), Bytes.toBytes(NOTIFICATION_FAMILY_FLAG), commitTimestamp, new byte[]{1}));
                 table.mutateRow(rowMutations);
-                table.flushCommits();
             }
+            table.flushCommits();
         } catch (IOException e) {
             throw e;
         }

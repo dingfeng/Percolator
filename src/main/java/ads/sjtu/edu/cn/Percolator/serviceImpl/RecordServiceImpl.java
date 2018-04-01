@@ -21,6 +21,7 @@ public class RecordServiceImpl implements RecordService {
         Transaction transaction = new Transaction(Conf.RECORD_TABLE);
         long upCount = transaction.get(WorkerImpl.UP_COUNT_KEY, "record");
         long downCount = transaction.get(WorkerImpl.DOWN_COUNT_KEY, "record");
+
         Record record = new Record();
         record.setDownCount(Long.toString(downCount));
         record.setUpCount(Long.toString(upCount));

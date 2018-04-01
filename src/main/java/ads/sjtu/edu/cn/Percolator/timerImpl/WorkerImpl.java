@@ -112,6 +112,7 @@ public class WorkerImpl implements Worker {
                 //down -1
                 Write downCountWrite = new Write(DOWN_COUNT_KEY, RECORD_TABLE_FAMILY, downCount - 1);
                 recordTransaction.addWrite(downCountWrite);
+
             } else if (currentValue < Conf.RECORD_THRESHOLD && recordValue == 1l) {
                 Write flagWrite = new Write(Bytes.toString(row), RECORD_TABLE_FAMILY, 0l);
                 recordTransaction.addWrite(flagWrite);
