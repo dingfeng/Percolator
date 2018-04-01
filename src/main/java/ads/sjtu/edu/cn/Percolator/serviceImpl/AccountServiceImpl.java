@@ -104,7 +104,6 @@ public class AccountServiceImpl implements AccountService {
                         colStrMap.put(colMapKeyStr, versionMap);
                         for (Long versionKey : colMapKeyMap.keySet()) {
                             byte[] versionValue = colMapKeyMap.get(versionKey);
-                            Long versionLongValue = Bytes.toLong(versionValue);
                             String value = null;
                             if (colMapKeyStr.equals("lock")) {
                                 value = Bytes.toString(versionValue);

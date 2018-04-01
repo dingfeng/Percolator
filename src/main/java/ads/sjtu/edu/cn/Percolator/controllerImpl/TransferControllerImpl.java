@@ -6,15 +6,14 @@ import ads.sjtu.edu.cn.Percolator.entity.AccountLine;
 import ads.sjtu.edu.cn.Percolator.entity.Record;
 import ads.sjtu.edu.cn.Percolator.entity.RowAccountVersionData;
 import ads.sjtu.edu.cn.Percolator.param.TransferAccountItemParam;
+import ads.sjtu.edu.cn.Percolator.param.TransferAccountParam;
 import ads.sjtu.edu.cn.Percolator.service.AccountService;
 import ads.sjtu.edu.cn.Percolator.service.RecordService;
 import com.google.common.base.Throwables;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,10 +35,12 @@ public class TransferControllerImpl implements TransferController {
 
     @RequestMapping("/transferAccount")
     @ResponseBody
-    public String transferAccount(@RequestParam String account, @RequestParam List<TransferAccountItemParam> transferAccountItemParamList) {
+    public String transferAccount(@RequestBody TransferAccountParam transferAccountParam) {
+        String name = transferAccountParam.getName();
+        List<TransferAccountItemParam> transferAccountItemParamList = transferAccountParam.getTransferAccountItemParamList();
         String result = "failure";
         try {
-            boolean transferResult = accountService.transferAccount(account, transferAccountItemParamList);
+            boolean transferResult = accountService.transferAccount(name, transferAccountItemParamList);
             if (transferResult) {
                 result = "success";
             }

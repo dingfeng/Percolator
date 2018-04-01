@@ -5,6 +5,7 @@ import ads.sjtu.edu.cn.Percolator.entity.AccountData;
 import ads.sjtu.edu.cn.Percolator.entity.Record;
 import ads.sjtu.edu.cn.Percolator.entity.RowAccountVersionData;
 import ads.sjtu.edu.cn.Percolator.param.TransferAccountItemParam;
+import ads.sjtu.edu.cn.Percolator.param.TransferAccountParam;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,11 +22,10 @@ import java.util.List;
 public interface TransferController {
     /**
      * 转账
-     * @param account 转出账户
-     * @param transferAccountItemParamList 转入账户和转入数量
+     * @param transferAccountParam 转出账户,转入账户和转入数量
      * @return 是否转账成功
      */
-    String transferAccount(String account, List<TransferAccountItemParam> transferAccountItemParamList);
+    String transferAccount(TransferAccountParam transferAccountParam);
 
     /**
      *
