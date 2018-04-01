@@ -2,7 +2,6 @@ package ads.sjtu.edu.cn.Percolator.controllerImpl;
 
 import ads.sjtu.edu.cn.Percolator.controller.TransferController;
 import ads.sjtu.edu.cn.Percolator.entity.AccountData;
-import ads.sjtu.edu.cn.Percolator.entity.AccountLine;
 import ads.sjtu.edu.cn.Percolator.entity.Record;
 import ads.sjtu.edu.cn.Percolator.entity.RowAccountVersionData;
 import ads.sjtu.edu.cn.Percolator.param.TransferAccountItemParam;
