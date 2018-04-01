@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DistributeLockUtils {
     static org.slf4j.Logger logger = LoggerFactory.getLogger(DistributeLockUtils.class);
     private static String connectString = "192.168.0.201:2181,192.168.0.202:2181,192.168.0.203:2181";
-    private static CuratorFramework client = CuratorFrameworkFactory.builder().connectString(connectString).retryPolicy(new ExponentialBackoffRetry(1000, 2)).sessionTimeoutMs(2000).build();
+    private static CuratorFramework client = CuratorFrameworkFactory.builder().connectString(connectString).retryPolicy(new ExponentialBackoffRetry(3000, 3)).sessionTimeoutMs(100000).build();
     private static Map<String, InterProcessSemaphoreMutex> lockMap = new ConcurrentHashMap<>();
 
     static {

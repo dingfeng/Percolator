@@ -50,7 +50,12 @@ public class Transaction {
 
     private void backoffAndMaybeCleanuplock(HTable table, String row, String family) throws IOException {
         Result result = table.get(new Get(Bytes.toBytes(row)).addColumn(Bytes.toBytes(family), Bytes.toBytes(LOCK_COL)));
-        long rowResultTimestamp = result.rawCells()[0].getTimestamp();
+        long rowResultTimestamp = -1;
+        if (result.rawCells() != null && result.rawCells().length > 0) {
+            rowResultTimestamp = result.rawCells()[0].getTimestamp();
+        } else {
+            return;
+        }
         boolean isAlive = SupportServiceClient.getInstance().isAlive(rowResultTimestamp);
         String primaryLocation = Bytes.toString(result.getValue(Bytes.toBytes(family), Bytes.toBytes(LOCK_COL)));
         primaryLocation = primaryLocation.substring(1, primaryLocation.length() - 1);
@@ -72,6 +77,8 @@ public class Transaction {
             if (isAlive == false) {
                 //roll back delete data and lock
                 //delete lock of primary
+                RowTransaction primaryRowTransaction = new RowTransaction(Bytes.toString(table.getTableName()), primaryRow);
+                primaryRowTransaction.startRowTransaction();
                 if (table.exists(new Get(Bytes.toBytes(primaryRow)).addColumn(Bytes.toBytes(primaryFamily), Bytes.toBytes(LOCK_COL)).setTimeStamp(rowResultTimestamp))) {
                     RowMutations primaryMutations = new RowMutations(Bytes.toBytes(primaryRow));
                     Delete primaryDataDelete = new Delete(Bytes.toBytes(primaryRow)).addColumn(Bytes.toBytes(family), Bytes.toBytes(DATA_COL)).setTimestamp(rowResultTimestamp);
@@ -80,13 +87,19 @@ public class Transaction {
                     primaryMutations.add(primaryLockDelete);
                     table.mutateRow(primaryMutations);
                 }
+                primaryRowTransaction.commit();
                 //delete row
-                RowMutations rowMutations = new RowMutations(Bytes.toBytes(row));
-                Delete rowDataDelete = new Delete(Bytes.toBytes(row)).addColumn(Bytes.toBytes(family), Bytes.toBytes(DATA_COL)).setTimestamp(rowResultTimestamp);
-                Delete rowLockDelete = new Delete(Bytes.toBytes(row)).addColumn(Bytes.toBytes(family), Bytes.toBytes(LOCK_COL)).setTimestamp(rowResultTimestamp);
-                rowMutations.add(rowDataDelete);
-                rowMutations.add(rowLockDelete);
-                table.mutateRow(rowMutations);
+                RowTransaction currentRowTransaciton = new RowTransaction(Bytes.toString(table.getTableName()), row);
+                currentRowTransaciton.startRowTransaction();
+                if (table.exists(new Get(Bytes.toBytes(row)).addColumn(Bytes.toBytes(primaryFamily), Bytes.toBytes(LOCK_COL)).setTimeStamp(rowResultTimestamp))) {
+                    RowMutations rowMutations = new RowMutations(Bytes.toBytes(row));
+                    Delete rowDataDelete = new Delete(Bytes.toBytes(row)).addColumn(Bytes.toBytes(family), Bytes.toBytes(DATA_COL)).setTimestamp(rowResultTimestamp);
+                    Delete rowLockDelete = new Delete(Bytes.toBytes(row)).addColumn(Bytes.toBytes(family), Bytes.toBytes(LOCK_COL)).setTimestamp(rowResultTimestamp);
+                    rowMutations.add(rowDataDelete);
+                    rowMutations.add(rowLockDelete);
+                    table.mutateRow(rowMutations);
+                }
+                currentRowTransaciton.commit();
                 logger.info("succeed to roll back row = {}", row);
             }
         } else {
@@ -125,6 +138,9 @@ public class Transaction {
                 long lastest_write = Bytes.toLong(result.getValue(familyBytes, Bytes.toBytes("write")));
                 Result dataResult = table.get(new Get(rowBytes).setTimeStamp(lastest_write).addColumn(familyBytes, Bytes.toBytes("data")));
                 byte[] dataBytes = dataResult.getValue(familyBytes, Bytes.toBytes("data"));
+                if (dataBytes == null) {
+                    System.out.println("account = " + Bytes.toString(rowBytes));
+                }
                 return Bytes.toLong(dataBytes);
             }
         } catch (IOException e) {
@@ -142,10 +158,12 @@ public class Transaction {
         HTable table = (HTable) connection.getTable(TableName.valueOf(this.tableName));
         boolean writeExist = table.exists(new Get(Bytes.toBytes(row)).addColumn(Bytes.toBytes(col), Bytes.toBytes(WRITE_COL)).setTimeRange(startTimestamp, Long.MAX_VALUE));
         if (writeExist) {
+            rowTransaction.commit();
             return false;
         }
         boolean lockExist = table.exists(new Get(Bytes.toBytes(row)).addColumn(Bytes.toBytes(col), Bytes.toBytes(LOCK_COL)));
         if (lockExist) {
+            rowTransaction.commit();
             return false;
         }
         RowMutations mutations = new RowMutations(Bytes.toBytes(row));
@@ -173,8 +191,10 @@ public class Transaction {
             RowTransaction rowTransaction = new RowTransaction(this.tableName, primary.getRow());
             rowTransaction.startRowTransaction();
             HTable table = (HTable) connection.getTable(TableName.valueOf(this.tableName));
-            if (!table.exists(new Get(Bytes.toBytes(primary.getRow())).addColumn(Bytes.toBytes(primary.getCol()), Bytes.toBytes(LOCK_COL)).setTimeStamp(startTimestamp)))
+            if (!table.exists(new Get(Bytes.toBytes(primary.getRow())).addColumn(Bytes.toBytes(primary.getCol()), Bytes.toBytes(LOCK_COL)).setTimeStamp(startTimestamp))) {
+                rowTransaction.commit();
                 return false;
+            }
             RowMutations mutations = new RowMutations(Bytes.toBytes(primary.getRow()));
             mutations.add(new Put(Bytes.toBytes(primary.getRow())).addColumn(Bytes.toBytes(primary.getCol()), Bytes.toBytes(WRITE_COL), commitTimestamp, Bytes.toBytes(startTimestamp)));
             mutations.add(new Delete(Bytes.toBytes(primary.getRow())).addColumn(Bytes.toBytes(primary.getCol()), Bytes.toBytes(LOCK_COL)));

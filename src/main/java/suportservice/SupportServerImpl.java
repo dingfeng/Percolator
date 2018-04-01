@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SupportServerImpl extends UnicastRemoteObject implements SupportServer {
     private long timestamp = 0;
     private Map<Long, Long> aliveMap = new ConcurrentHashMap<>();
-    private final static long maxNoAliveDuration = 60 * 1000;
+    private final static long maxNoAliveDuration = 5 * 1000;
 
     public SupportServerImpl() throws RemoteException {
         super();
