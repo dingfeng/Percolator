@@ -7,6 +7,7 @@ import com.google.common.base.Throwables;
 import lombok.Data;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.KeepDeletedCells;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
@@ -124,13 +125,17 @@ public class InitData {
         }
         HTableDescriptor accountHtd = new HTableDescriptor("account_table");
         HColumnDescriptor accountHcd = new HColumnDescriptor("account");
+        accountHcd.setKeepDeletedCells(KeepDeletedCells.FALSE);
         HColumnDescriptor accountNotification = new HColumnDescriptor("notification");
+        accountNotification.setKeepDeletedCells(KeepDeletedCells.FALSE);
         accountHtd.addFamily(accountHcd);
         accountHtd.addFamily(accountNotification);
         admin.createTable(accountHtd);
         HTableDescriptor rankHtd = new HTableDescriptor("record_table");
         HColumnDescriptor rankHcd = new HColumnDescriptor("record");
+        rankHcd.setKeepDeletedCells(KeepDeletedCells.FALSE);
         HColumnDescriptor rankNotification = new HColumnDescriptor("notification");
+        rankNotification.setKeepDeletedCells(KeepDeletedCells.FALSE);
         rankHtd.addFamily(rankHcd);
         rankHtd.addFamily(rankNotification);
         admin.createTable(rankHtd);
