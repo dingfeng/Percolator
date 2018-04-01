@@ -13,7 +13,7 @@ import java.util.Map;
  */
 @Data
 public class RowAccountVersionData {
-    private String account = "";
+    private String name = "";
     //    private List<AccountLine> versionData;
     private Map<String, Map<String, Map<Long, String>>> data;
 }

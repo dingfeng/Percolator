@@ -13,6 +13,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -40,8 +41,7 @@ public class WorkerImpl implements Worker {
     private ThreadPool threadPool;
 
 
-    //    @Scheduled(cron = "* * * * * *")
-    @PostConstruct
+    @Scheduled(cron = "* * * * * *")
     public void scanNotificationColumn() {
         logger.info("timer task scanNotificationColumn has been started");
         try {

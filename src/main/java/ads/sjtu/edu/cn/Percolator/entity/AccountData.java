@@ -9,6 +9,6 @@ import lombok.Data;
  */
 @Data
 public class AccountData {
-    private String account="";
+    private String name ="";
     private Long amount;
 }

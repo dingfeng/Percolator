@@ -85,7 +85,7 @@ public class InitData {
 
     public static void addAccountData() throws IOException {
         Transaction transaction = new Transaction();
-        String col = "account";
+        String col = "name";
         Long[] updatedDatas = new Long[accounts.length];
         for (int i = 0; i < accounts.length; ++i) {
             String accountKey = accounts[i];
@@ -154,7 +154,7 @@ public class InitData {
             transaction.addWrite(write);
         }
         transaction.commit();
-        System.out.println("succeed to init account data");
+        System.out.println("succeed to init name data");
     }
 
     private static void insertRecordData() throws IOException {

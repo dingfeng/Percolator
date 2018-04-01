@@ -23,7 +23,7 @@ public class TrasactionTest {
         Connection connection = ConnectionFactory.createConnection(Conf.HBASE_CONFIG);
         HBaseAdmin admin = (HBaseAdmin) connection.getAdmin();
         HTableDescriptor htd = new HTableDescriptor("account_table");
-        HColumnDescriptor accountHcd = new HColumnDescriptor("account");
+        HColumnDescriptor accountHcd = new HColumnDescriptor("name");
         HColumnDescriptor notificationHcd = new HColumnDescriptor("notification");
         htd.addFamily(accountHcd);
         htd.addFamily(notificationHcd);

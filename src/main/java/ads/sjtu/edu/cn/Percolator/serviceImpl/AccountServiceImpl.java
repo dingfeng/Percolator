@@ -64,7 +64,7 @@ public class AccountServiceImpl implements AccountService {
             Transaction transaction = new Transaction(Conf.ACCOUNT_TABLE);
             for (String key : allKeys) {
                 AccountData accountData = new AccountData();
-                accountData.setAccount(key);
+                accountData.setName(key);
                 long amount = transaction.get(key, Transaction.ACCOUNT_FAMILY);
                 accountData.setAmount(amount);
                 accountDataList.add(accountData);
@@ -88,7 +88,7 @@ public class AccountServiceImpl implements AccountService {
             for (Result scannerResult : resultScanner) {
                 RowAccountVersionData rowAccountVersionData = new RowAccountVersionData();
                 byte[] row = scannerResult.getRow();
-                rowAccountVersionData.setAccount(Bytes.toString(row));
+                rowAccountVersionData.setName(Bytes.toString(row));
                 Map<String, Map<String, Map<Long, String>>> familyMap = new HashMap<>();
                 rowAccountVersionData.setData(familyMap);
                 NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> allVersions = scannerResult.getMap();
@@ -111,10 +111,11 @@ public class AccountServiceImpl implements AccountService {
                             } else {
                                 value = Long.toString(Bytes.toLong(versionValue));
                             }
-                            versionMap.put(versionLongValue, value);
+                            versionMap.put(versionKey, value);
                         }
                     }
                 }
+                rowAccountVersionDataList.add(rowAccountVersionData);
             }
         } catch (IOException e) {
             throw e;
