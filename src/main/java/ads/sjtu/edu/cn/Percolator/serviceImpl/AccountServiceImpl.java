@@ -83,6 +83,7 @@ public class AccountServiceImpl implements AccountService {
         try (Connection connection = ConnectionFactory.createConnection(Conf.HBASE_CONFIG)) {
             HTable htable = (HTable) connection.getTable(TableName.valueOf(Conf.ACCOUNT_TABLE));
             Scan scan = new Scan();
+            scan.setRaw(true);
             scan.setMaxVersions();
             ResultScanner resultScanner = htable.getScanner(scan);
             for (Result scannerResult : resultScanner) {
@@ -107,8 +108,10 @@ public class AccountServiceImpl implements AccountService {
                             String value = null;
                             if (colMapKeyStr.equals("lock")) {
                                 value = Bytes.toString(versionValue);
-                            } else {
+                            } else if (versionValue.length == 8) {
                                 value = Long.toString(Bytes.toLong(versionValue));
+                            } else if (versionValue.length == 1) {
+                                value = String.valueOf(versionValue[0]);
                             }
                             versionMap.put(versionKey, value);
                         }
@@ -116,7 +119,7 @@ public class AccountServiceImpl implements AccountService {
                 }
                 rowAccountVersionDataList.add(rowAccountVersionData);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw e;
         }
         return rowAccountVersionDataList;
