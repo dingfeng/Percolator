@@ -86,6 +86,7 @@ public class Transaction {
                     primaryMutations.add(primaryDataDelete);
                     primaryMutations.add(primaryLockDelete);
                     table.mutateRow(primaryMutations);
+                    table.flushCommits();
                 }
                 primaryRowTransaction.commit();
                 //delete row
@@ -98,6 +99,7 @@ public class Transaction {
                     rowMutations.add(rowDataDelete);
                     rowMutations.add(rowLockDelete);
                     table.mutateRow(rowMutations);
+                    table.flushCommits();
                 }
                 currentRowTransaciton.commit();
                 logger.info("succeed to roll back row = {}", row);
@@ -112,6 +114,7 @@ public class Transaction {
             rowMutations.add(writePut);
             rowMutations.add(notificationPut);
             table.mutateRow(rowMutations);
+            table.flushCommits();
             logger.info("succeed to roll forward row = {}", row);
         }
     }
@@ -170,6 +173,7 @@ public class Transaction {
         mutations.add(new Put(Bytes.toBytes(row)).addColumn(Bytes.toBytes(col), Bytes.toBytes(DATA_COL), startTimestamp, Bytes.toBytes(w.getValue())));
         mutations.add(new Put(Bytes.toBytes(row)).addColumn(Bytes.toBytes(col), Bytes.toBytes(LOCK_COL), startTimestamp, Bytes.toBytes("{" + primary.getRow() + "," + primary.getCol() + "}")));
         table.mutateRow(mutations);
+        table.flushCommits();
         return rowTransaction.commit();
     }
 
@@ -211,6 +215,7 @@ public class Transaction {
                 rowMutations.add(new Delete(Bytes.toBytes(write.getRow())).addColumn(Bytes.toBytes(write.getCol()), Bytes.toBytes(LOCK_COL)));
                 rowMutations.add(new Put(Bytes.toBytes(write.getRow())).addColumn(Bytes.toBytes(NOTIFICATION_FAMILY), Bytes.toBytes(NOTIFICATION_FAMILY_FLAG), commitTimestamp, new byte[]{1}));
                 table.mutateRow(rowMutations);
+                table.flushCommits();
             }
         } catch (IOException e) {
             throw e;

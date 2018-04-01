@@ -77,6 +77,7 @@ public class AccountServiceImpl implements AccountService {
         return accountDataList;
     }
 
+
     @Override
     public List<RowAccountVersionData> allDBDataWithVersions() throws IOException {
         List<RowAccountVersionData> rowAccountVersionDataList = new ArrayList<>();
@@ -104,16 +105,19 @@ public class AccountServiceImpl implements AccountService {
                         Map<Long, String> versionMap = new HashMap<>();
                         colStrMap.put(colMapKeyStr, versionMap);
                         for (Long versionKey : colMapKeyMap.keySet()) {
-                            byte[] versionValue = colMapKeyMap.get(versionKey);
-                            String value = null;
-                            if (colMapKeyStr.equals("lock")) {
-                                value = Bytes.toString(versionValue);
-                            } else if (versionValue.length == 8) {
-                                value = Long.toString(Bytes.toLong(versionValue));
-                            } else if (versionValue.length == 1) {
-                                value = String.valueOf(versionValue[0]);
+                            boolean exist = htable.exists(new Get(row).addColumn(keySet, colMapKey).setTimeStamp(versionKey));
+                            if (exist) {
+                                byte[] versionValue = colMapKeyMap.get(versionKey);
+                                String value = null;
+                                if (colMapKeyStr.equals("lock")) {
+                                    value = Bytes.toString(versionValue);
+                                } else if (versionValue.length == 8) {
+                                    value = Long.toString(Bytes.toLong(versionValue));
+                                } else if (versionValue.length == 1) {
+                                    value = String.valueOf(versionValue[0]);
+                                }
+                                versionMap.put(versionKey, value);
                             }
-                            versionMap.put(versionKey, value);
                         }
                     }
                 }
