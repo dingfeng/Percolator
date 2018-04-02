@@ -29,18 +29,18 @@ import java.util.concurrent.atomic.AtomicLong;
  * @see LargeConcurrencyTestCase
  */
 public class LargeConcurrencyTestCase {
-    public static final int WRITE_SIZE = 10;
+    public static final int WRITE_SIZE = 10;   //每个事务的写次数在2~12次
     public static AtomicLong[] timeRecords = new AtomicLong[WRITE_SIZE + 2];  //时间记录
     public static AtomicInteger[] successCounts = new AtomicInteger[WRITE_SIZE + 2];  //成功用例的数量
     public static AtomicInteger[] failureCounts = new AtomicInteger[WRITE_SIZE + 2];  //失败用例的数量
     public static final int ACCOUNT_LENGTH = 200;  //200个数据规模
-    public static String[] accounts = new String[ACCOUNT_LENGTH];
-    public static AtomicLong[] accountDatas = new AtomicLong[ACCOUNT_LENGTH];
+    public static String[] accounts = new String[ACCOUNT_LENGTH];  //随机产生的账户
+    public static AtomicLong[] accountDatas = new AtomicLong[ACCOUNT_LENGTH];   //真实账户数据
     public static final Long ACCOUNT_AMOUNT = 100000L;
-    public static final int EXECUTE_COUNT_PER_THREAD = 200;
+    public static final int EXECUTE_COUNT_PER_THREAD = 200;          //每个线程的事务执行次数
     public static final long TRANSFER_AMOUNT = 1;
     public static Map<String, Integer> accountMap = new ConcurrentHashMap<>();
-    public static final int WORKTASK_SIZE = 3;
+    public static final int WORKTASK_SIZE = 3;                       //线程数
     public static WorkTask[] workTasks = new WorkTask[WORKTASK_SIZE];
 
     public static void main(String[] args) throws IOException, InterruptedException {

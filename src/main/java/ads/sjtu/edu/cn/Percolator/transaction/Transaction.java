@@ -65,7 +65,10 @@ public class Transaction {
         long primaryCommitTimestamp = -1;
         RowTransaction rowTransaction = new RowTransaction(this.tableName, primaryRow);
         logger.info("begin transaction primary row = {}", primaryRow);
-        rowTransaction.startRowTransaction();
+        boolean rowTransactionResult = rowTransaction.startRowTransaction();
+        if (rowTransactionResult == false) {
+            return;
+        }
         //primary行是否存在锁
         Result primaryWriteResult = table.get(new Get(Bytes.toBytes(primaryRow)).addColumn(Bytes.toBytes(primaryFamily), Bytes.toBytes(WRITE_COL)).setTimeStamp(rowResultTimestamp));
         if (primaryWriteResult.rawCells() != null && primaryWriteResult.rawCells().length > 0) {
@@ -78,7 +81,10 @@ public class Transaction {
                 //roll back delete data and lock
                 //delete lock of primary
                 RowTransaction primaryRowTransaction = new RowTransaction(Bytes.toString(table.getTableName()), primaryRow);
-                primaryRowTransaction.startRowTransaction();
+                boolean primaryRowTransactionResult = primaryRowTransaction.startRowTransaction();
+                if (primaryRowTransactionResult == false) {
+                    return;
+                }
                 if (table.exists(new Get(Bytes.toBytes(primaryRow)).addColumn(Bytes.toBytes(primaryFamily), Bytes.toBytes(LOCK_COL)).setTimeStamp(rowResultTimestamp))) {
                     RowMutations primaryMutations = new RowMutations(Bytes.toBytes(primaryRow));
                     Delete primaryDataDelete = new Delete(Bytes.toBytes(primaryRow)).addColumn(Bytes.toBytes(family), Bytes.toBytes(DATA_COL)).setTimestamp(rowResultTimestamp);
@@ -91,7 +97,10 @@ public class Transaction {
                 primaryRowTransaction.commit();
                 //delete row
                 RowTransaction currentRowTransaciton = new RowTransaction(Bytes.toString(table.getTableName()), row);
-                currentRowTransaciton.startRowTransaction();
+                boolean currentRowTransactionResult = currentRowTransaciton.startRowTransaction();
+                if (currentRowTransactionResult == false) {
+                    return;
+                }
                 if (table.exists(new Get(Bytes.toBytes(row)).addColumn(Bytes.toBytes(primaryFamily), Bytes.toBytes(LOCK_COL)).setTimeStamp(rowResultTimestamp))) {
                     RowMutations rowMutations = new RowMutations(Bytes.toBytes(row));
                     Delete rowDataDelete = new Delete(Bytes.toBytes(row)).addColumn(Bytes.toBytes(family), Bytes.toBytes(DATA_COL)).setTimestamp(rowResultTimestamp);
@@ -157,7 +166,11 @@ public class Transaction {
         String row = w.getRow();
         String col = w.getCol();
         RowTransaction rowTransaction = new RowTransaction(this.tableName, row);
-        rowTransaction.startRowTransaction();
+        boolean rowTransactionResult=rowTransaction.startRowTransaction();
+        if(rowTransactionResult == false)
+        {
+            return false;
+        }
         HTable table = (HTable) connection.getTable(TableName.valueOf(this.tableName));
         boolean writeExist = table.exists(new Get(Bytes.toBytes(row)).addColumn(Bytes.toBytes(col), Bytes.toBytes(WRITE_COL)).setTimeRange(startTimestamp, Long.MAX_VALUE));
         if (writeExist) {
@@ -193,7 +206,11 @@ public class Transaction {
             long commitTimestamp = getOneTimestamp();
             logger.info("primary start row transaction");
             RowTransaction rowTransaction = new RowTransaction(this.tableName, primary.getRow());
-            rowTransaction.startRowTransaction();
+            boolean rowTransactionResult = rowTransaction.startRowTransaction();
+            if(rowTransactionResult == false)
+            {
+                return false;
+            }
             HTable table = (HTable) connection.getTable(TableName.valueOf(this.tableName));
             if (!table.exists(new Get(Bytes.toBytes(primary.getRow())).addColumn(Bytes.toBytes(primary.getCol()), Bytes.toBytes(LOCK_COL)).setTimeStamp(startTimestamp))) {
                 rowTransaction.commit();
@@ -203,8 +220,8 @@ public class Transaction {
             mutations.add(new Put(Bytes.toBytes(primary.getRow())).addColumn(Bytes.toBytes(primary.getCol()), Bytes.toBytes(WRITE_COL), commitTimestamp, Bytes.toBytes(startTimestamp)));
             mutations.add(new Delete(Bytes.toBytes(primary.getRow())).addColumn(Bytes.toBytes(primary.getCol()), Bytes.toBytes(LOCK_COL)));
             mutations.add(new Put(Bytes.toBytes(primary.getRow())).addColumn(Bytes.toBytes(NOTIFICATION_FAMILY), Bytes.toBytes(NOTIFICATION_FAMILY_FLAG), commitTimestamp, new byte[]{1}));
-
             table.mutateRow(mutations);
+            table.flushCommits();
             if (!rowTransaction.commit()) return false;
             logger.info("primary succeeds to commit row transaction");
             //update other rows
@@ -215,8 +232,9 @@ public class Transaction {
                 rowMutations.add(new Delete(Bytes.toBytes(write.getRow())).addColumn(Bytes.toBytes(write.getCol()), Bytes.toBytes(LOCK_COL)));
                 rowMutations.add(new Put(Bytes.toBytes(write.getRow())).addColumn(Bytes.toBytes(NOTIFICATION_FAMILY), Bytes.toBytes(NOTIFICATION_FAMILY_FLAG), commitTimestamp, new byte[]{1}));
                 table.mutateRow(rowMutations);
+                table.flushCommits();
             }
-            table.flushCommits();
+
         } catch (IOException e) {
             throw e;
         }
