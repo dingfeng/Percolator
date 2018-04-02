@@ -41,7 +41,7 @@ public class WorkerImpl implements Worker {
     private ThreadPool threadPool;
 
 
-    @Scheduled(cron = "*/5 * * * * *")
+    @Scheduled(cron = "*/8 * * * * *")
     public void scanNotificationColumn() {
         logger.info("timer task scanNotificationColumn has been started");
         try {
@@ -73,18 +73,26 @@ public class WorkerImpl implements Worker {
                 ResultScanner resultScanner = table.getScanner(scan);
                 for (Result scannerResult : resultScanner) {
                     byte[] row = scannerResult.getRow();
+
                     RowTransaction rowTransaction = new RowTransaction(Conf.ACCOUNT_TABLE, Bytes.toString(row) + Transaction.NOTIFICATION_FAMILY_FLAG);
-                    rowTransaction.startRowTransaction();
-                    if (table.exists(new Get(row).addColumn(Bytes.toBytes(Transaction.NOTIFICATION_FAMILY), Bytes.toBytes(Transaction.NOTIFICATION_FAMILY_FLAG)))) {
-                        boolean observerRunSuccess = observerRun(row);
-                        if (observerRunSuccess) {
-                            Delete deleteFlag = new Delete(row).addColumn(Bytes.toBytes(Transaction.NOTIFICATION_FAMILY), Bytes.toBytes(Transaction.NOTIFICATION_FAMILY_FLAG));
-                            table.delete(deleteFlag);
-                        } else {
-                            logger.warn("fail to run observer! for row = {}", Bytes.toString(row));
+                    try {
+                        boolean rowTransactionResult = rowTransaction.startRowTransaction();
+                        if (rowTransactionResult == false) {
+                            continue;
                         }
+                        if (table.exists(new Get(row).addColumn(Bytes.toBytes(Transaction.NOTIFICATION_FAMILY), Bytes.toBytes(Transaction.NOTIFICATION_FAMILY_FLAG)))) {
+                            boolean observerRunSuccess = observerRun(row);
+                            if (observerRunSuccess) {
+                                Delete deleteFlag = new Delete(row).addColumn(Bytes.toBytes(Transaction.NOTIFICATION_FAMILY), Bytes.toBytes(Transaction.NOTIFICATION_FAMILY_FLAG));
+                                table.delete(deleteFlag);
+                            } else {
+                                logger.warn("fail to run observer! for row = {}", Bytes.toString(row));
+                            }
+                        }
+                    } finally {
+                        rowTransaction.commit();
                     }
-                    rowTransaction.commit();
+
                 }
             } catch (Exception e) {
                 logger.error(Throwables.getStackTraceAsString(e));
