@@ -25,6 +25,15 @@ public class SupportServerImpl extends UnicastRemoteObject implements SupportSer
         super();
     }
 
+    public SupportServerImpl(long timestamp) throws RemoteException {
+        super();
+        this.timestamp=timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
     @Override
     public synchronized List<Long> getTimestamps(int num) {
         List<Long> timestamps = new ArrayList<>();

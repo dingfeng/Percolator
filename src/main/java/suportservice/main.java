@@ -12,14 +12,19 @@ import java.rmi.registry.LocateRegistry;
  * @see main
  */
 
-public class main
-{
-    public static void main(String[] args){
+public class main {
+    public static void main(String[] args) {
 //        if (System.getSecurityManager() == null) {
 //            System.setSecurityManager(new SecurityManager());
 //        }
         try {
-            SupportServer server = new SupportServerImpl();
+            long startTimestamp = 0;
+            for (String timestamp : args) {
+                if (timestamp.contains("st=")) {
+                    startTimestamp=Long.parseLong(timestamp.substring(3));
+                }
+            }
+            SupportServer server = new SupportServerImpl(startTimestamp);
             LocateRegistry.createRegistry(20000);
             Naming.bind("rmi://0.0.0.0:20000/SupportServer", server);
             System.out.println("SupportServer");
